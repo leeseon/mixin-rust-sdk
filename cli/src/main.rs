@@ -1,4 +1,5 @@
 use std::path::PathBuf;
+use mixin_sdk::keystore::KeyStore;
 
 use clap::{Parser, Subcommand};
 
@@ -35,21 +36,23 @@ fn main() {
     }
 
     if let Some(config_path) = cli.file.as_deref() {
-        println!("Value for config: {}", config_path.display());
+        println!("Value for file: {}", config_path.display());
+        let ks = KeyStore::from_file(config_path);
+        println!("{:?}", ks);
     }
 
-    // You can check for the existence of subcommands, and if found use their
-    // matches just as you would the top level cmd
-    match &cli.command {
-        Some(Commands::Test { list }) => {
-            if *list {
-                println!("Printing testing lists...");
-            } else {
-                println!("Not printing testing lists...");
-            }
-        }
-        None => {}
-    }
+    // // You can check for the existence of subcommands, and if found use their
+    // // matches just as you would the top level cmd
+    // match &cli.command {
+    //     Some(Commands::Test { list }) => {
+    //         if *list {
+    //             println!("Printing testing lists...");
+    //         } else {
+    //             println!("Not printing testing lists...");
+    //         }
+    //     }
+    //     None => {}
+    // }
 
-    // Continued program logic goes here...
+    // // Continued program logic goes here...
 }
