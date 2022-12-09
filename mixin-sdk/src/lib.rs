@@ -10,5 +10,9 @@ impl Client {
     pub fn new(ks: KeyStore) -> Client {
         Client {keystore: ks}
     }
+
+    pub fn me() {
+        
+    }
 }
 

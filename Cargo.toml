@@ -1,2 +1,2 @@
 [workspace]
-members = ["mixin-sdk", "example","cli"]
+members = ["mixin-sdk", "example", "cli"]

@@ -14,7 +14,7 @@ pub struct KeyStore {
     pub private_key: String,
     pub pin_token: String,
     pub scope: Option<String>,
-    pub pin: u32,
+    pub pin: Option<String>,
   }
   
 impl KeyStore {
