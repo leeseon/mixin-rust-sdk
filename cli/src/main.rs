@@ -27,7 +27,7 @@ enum Commands {
 #[derive(Debug, Args)]
 struct UserCommand {
     #[command(subcommand)]
-    command: Option<UserCommands>,
+    command: UserCommands,
 }
 
 #[derive(Debug, Subcommand)]
@@ -53,7 +53,26 @@ fn main() {
         println!("{:?}", client);
     }
 
+    match cli.commond {
+        Commands::User(user) => {
+            // let cmd = user.command.unwrap();
+            // println!("cmd {:?}", cmd);
+            match user.command {
+                UserCommands::Create{}  => { 
+                    println!("create");
+                }
+                UserCommands::Me{} => {
+                    println!("me");
+                }
+                UserCommands::Search { uuid } => {
+                    println!("Search {:?}", uuid);
+                }
+            }
+        }
+        Commands::Http(http) => {
 
+        }
+    }
 
     // // You can check for the existence of subcommands, and if found use their
     // // matches just as you would the top level cmd
