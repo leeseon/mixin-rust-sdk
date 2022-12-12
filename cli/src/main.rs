@@ -2,7 +2,7 @@ use std::path::PathBuf;
 use mixin_sdk::keystore::KeyStore;
 use mixin_sdk::Client;
 
-use clap::Parser;
+use clap::{Args, Parser, Subcommand};
 
 #[derive(Parser, Debug)]
 #[command(name = "mixin-cli")]
@@ -15,25 +15,27 @@ struct Cli {
     file: Option<PathBuf>,
 
     #[command(subcommand)]
-    // command: Option<Commands>,
-    subcommand: SubCommand,
+    commond: Commands,
 }
 
-#[derive(Parser, Debug)]
-enum SubCommand {
+#[derive(Debug, Subcommand)]
+enum Commands {
     User(UserCommand),
     Http(HttpCommand),
 }
 
-#[derive(Parser, Debug)]
-// #[command(subcommand)]
+#[derive(Debug, Args)]
 struct UserCommand {
-    // Create(UserCreateCommand),
-    // Me(UserMeCommand),
-    // Search(UserSearchCommand),
+    #[command(subcommand)]
+    command: Option<UserCommands>,
 }
 
-
+#[derive(Debug, Subcommand)]
+enum UserCommands {
+    Create{},
+    Me{},
+    Search{ uuid: String},
+}
 
 #[derive(Parser, Debug)]
 struct HttpCommand {
