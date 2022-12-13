@@ -51,28 +51,31 @@ fn main() {
         println!("{:?}", ks);
         let client = Client::new(ks);
         println!("{:?}", client);
-    }
 
-    match cli.commond {
-        Commands::User(user) => {
-            // let cmd = user.command.unwrap();
-            // println!("cmd {:?}", cmd);
-            match user.command {
-                UserCommands::Create{}  => { 
-                    println!("create");
-                }
-                UserCommands::Me{} => {
-                    println!("me");
-                }
-                UserCommands::Search { uuid } => {
-                    println!("Search {:?}", uuid);
+        match cli.commond {
+            Commands::User(user) => {
+                // let cmd = user.command.unwrap();
+                // println!("cmd {:?}", cmd);
+                match user.command {
+                    UserCommands::Create{}  => { 
+                        println!("create");
+                    }
+                    UserCommands::Me{} => {
+                        let me: = Client::me();
+                        println!("me");
+                    }
+                    UserCommands::Search { uuid } => {
+                        println!("Search {:?}", uuid);
+                    }
                 }
             }
-        }
-        Commands::Http(http) => {
-
+            Commands::Http(http) => {
+    
+            }
         }
     }
+
+
 
     // // You can check for the existence of subcommands, and if found use their
     // // matches just as you would the top level cmd
