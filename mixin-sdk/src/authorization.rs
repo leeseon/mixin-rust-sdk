@@ -4,6 +4,8 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::error;
 use uuid::Uuid;
+
+use crate::keystore;
 // use carte::keystore;
 // use crate::keystore;
 
@@ -30,7 +32,7 @@ pub fn sign_token(
     uri: &str,
     body: &str,
     // cfg: AppConfig,
-    ks: KeyStore,
+    ks: keystore::KeyStore,
 ) -> Result<String, Box<dyn error::Error>> {
     let mut hasher = Sha256::new();
     hasher.update(format!("{}{}{}", method.as_str(), uri, body).as_bytes());

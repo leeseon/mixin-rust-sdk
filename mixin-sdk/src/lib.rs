@@ -2,14 +2,14 @@ pub mod keystore;
 pub mod http;
 pub mod authorization;
 
-use keystore::KeyStore;
+use reqwest::Method;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::error;
 
 #[derive(Debug)]
 pub struct Client {
-    keystore: KeyStore,
+    keystore: keystore::KeyStore,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -55,13 +55,13 @@ pub struct Me {
 }
 
 impl Client {
-    pub fn new(ks: KeyStore) -> Client {
+    pub fn new(ks: keystore::KeyStore) -> Client {
         Client {keystore: ks}
     }
 
-    pub fn me() -> Result<Me, Box<dyn error::Error>> {
+    pub fn me(self) -> Result<Me, Box<dyn error::Error>> {
         let map: HashMap<String, String> = HashMap::new();
-        let res = http::request(cfg, Method::GET, "/me", &map)?;
+        let res = http::request(self.keystore, Method::GET, "/me", &map)?;
     
         #[derive(Debug, Serialize, Deserialize)]
         struct Body {

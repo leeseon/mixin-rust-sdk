@@ -15,7 +15,7 @@ struct Cli {
     file: Option<PathBuf>,
 
     #[command(subcommand)]
-    commond: Commands,
+    command: Commands,
 }
 
 #[derive(Debug, Subcommand)]
@@ -52,17 +52,17 @@ fn main() {
         let client = Client::new(ks);
         println!("{:?}", client);
 
-        match cli.commond {
+        match cli.command {
             Commands::User(user) => {
-                // let cmd = user.command.unwrap();
-                // println!("cmd {:?}", cmd);
+
                 match user.command {
                     UserCommands::Create{}  => { 
                         println!("create");
                     }
                     UserCommands::Me{} => {
-                        let me: = Client::me();
-                        println!("me");
+                        // let me: = Client::me();
+                        let me = client.me();
+                        println!("me {:?}", me);
                     }
                     UserCommands::Search { uuid } => {
                         println!("Search {:?}", uuid);
@@ -75,20 +75,4 @@ fn main() {
         }
     }
 
-
-
-    // // You can check for the existence of subcommands, and if found use their
-    // // matches just as you would the top level cmd
-    // match &cli.command {
-    //     Some(Commands::Test { list }) => {
-    //         if *list {
-    //             println!("Printing testing lists...");
-    //         } else {
-    //             println!("Not printing testing lists...");
-    //         }
-    //     }
-    //     None => {}
-    // }
-
-    // // Continued program logic goes here...
 }

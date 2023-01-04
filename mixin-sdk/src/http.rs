@@ -1,9 +1,9 @@
-// use crate::keystore;
 use reqwest::{blocking::Response, header, Method};
 use serde::{Deserialize, Serialize};
 use std::{error, fmt, time::Duration};
 use uuid::Uuid;
-use crate::keystore::KeyStore;
+
+use crate::{authorization, keystore};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Error {
@@ -30,6 +30,7 @@ impl error::Error for Error {}
 
 pub fn request<T: Serialize + ?Sized>(
     // cfg: authorization::AppConfig,
+    ks: keystore::KeyStore,
     method: Method,
     path: &str,
     json: &T,
@@ -39,7 +40,7 @@ pub fn request<T: Serialize + ?Sized>(
         let j = serde_json::to_string(&json)?;
         body = j.clone();
     }
-    let token = authorization::sign_token(method.clone(), path, &body)?;
+    let token = authorization::sign_token(method.clone(), path, &body, ks)?;
 
     Ok(request_with_token(method, path, json, &token))
 }
