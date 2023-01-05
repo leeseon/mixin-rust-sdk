@@ -29,7 +29,6 @@ impl fmt::Display for Error {
 impl error::Error for Error {}
 
 pub fn request<T: Serialize + ?Sized>(
-    // cfg: authorization::AppConfig,
     ks: keystore::KeyStore,
     method: Method,
     path: &str,

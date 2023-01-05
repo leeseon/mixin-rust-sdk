@@ -1,3 +1,4 @@
+use base64::{engine::fast_portable::{self, FastPortable}, alphabet};
 use jwt_simple::prelude::*;
 use reqwest::Method;
 use serde::{Deserialize, Serialize};
@@ -6,8 +7,6 @@ use std::error;
 use uuid::Uuid;
 
 use crate::keystore;
-// use carte::keystore;
-// use crate::keystore;
 
 #[derive(Serialize, Deserialize)]
 struct CustomClaims {
@@ -18,27 +17,23 @@ struct CustomClaims {
     scp: String,
 }
 
-// #[derive(Clone, Debug)]
-// pub struct AppConfig {
-//     pub uid: String,
-//     pub sid: String,
-//     pub private_base64: String,
-//     pub pin: String,
-//     pub pin_token_base64: String,
-// }
-
 pub fn sign_token(
     method: Method,
     uri: &str,
     body: &str,
-    // cfg: AppConfig,
     ks: keystore::KeyStore,
 ) -> Result<String, Box<dyn error::Error>> {
     let mut hasher = Sha256::new();
     hasher.update(format!("{}{}{}", method.as_str(), uri, body).as_bytes());
     let result = hasher.finalize();
 
-    let private_data = base64::decode_config(ks.private_key, base64::URL_SAFE_NO_PAD)?;
+    let private_data = base64::decode_engine(
+        ks.private_key,
+        &FastPortable::from(
+            &alphabet::URL_SAFE,
+            fast_portable::NO_PAD),
+
+    )?;
 
     let claim = CustomClaims {
         uid: ks.client_id.to_string(),

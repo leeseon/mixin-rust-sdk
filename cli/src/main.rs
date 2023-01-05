@@ -60,7 +60,6 @@ fn main() {
                         println!("create");
                     }
                     UserCommands::Me{} => {
-                        // let me: = Client::me();
                         let me = client.me();
                         println!("me {:?}", me);
                     }
