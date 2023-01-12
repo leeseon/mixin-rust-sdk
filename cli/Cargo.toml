@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 clap = { version = "4.0.29", features = ["derive"] }
 mixin-sdk = {path = "../mixin-sdk"}
+shellexpand = "3.0.0"

@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{path::{PathBuf, Path}, ops::Deref, ffi::OsStr};
 use mixin_sdk::keystore::KeyStore;
 use mixin_sdk::Client;
 
@@ -12,6 +12,7 @@ use clap::{Args, Parser, Subcommand};
 struct Cli {
     /// Sets a custom keystore file
     #[arg(short, long, value_name = "FILE")]
+    #[arg(default_value = "~/.mixin-cli/keystore.json")]
     file: Option<PathBuf>,
 
     #[command(subcommand)]
@@ -42,36 +43,62 @@ struct HttpCommand {
 
 }
 
+// fn abspath(p: &str) -> Option<String> {
+//     shellexpand::full(p)
+//         .ok()
+//         .and_then(|x| Path::new(OsStr::new(x.as_ref())).canonicalize().ok())
+//         .and_then(|p| p.into_os_string().into_string().ok())
+// }
+
+fn abspath_buf(p: &str) -> Option<PathBuf> {
+    shellexpand::full(p)
+        .ok()
+        .and_then(|x| Path::new(OsStr::new(x.as_ref())).canonicalize().ok())
+}
+
 fn main() {
     let cli = Cli::parse();
 
-    if let Some(config_path) = cli.file.as_deref() {
-        println!("Value for file: {}", config_path.display());
-        let ks = KeyStore::from_file(config_path);
-        println!("{:?}", ks);
-        let client = Client::new(ks);
-        println!("{:?}", client);
+    let mut expanded_path: PathBuf = PathBuf::new();
+    if cli.file.is_none() {
+        println!("None");
+    }
 
-        match cli.command {
-            Commands::User(user) => {
+    if let Some(ref config_path) = cli.file {
+        let p = config_path.as_path().display().to_string();
+        println!("{:?}", p);
+        expanded_path = abspath_buf(&p).unwrap();
+    }
 
-                match user.command {
-                    UserCommands::Create{}  => { 
-                        println!("create");
-                    }
-                    UserCommands::Me{} => {
-                        let me = client.me();
-                        println!("me {:?}", me);
-                    }
-                    UserCommands::Search { uuid } => {
-                        println!("Search {:?}", uuid);
-                    }
+    println!("{:?}", expanded_path.as_path().display());
+
+
+    let ks = KeyStore::from_file(expanded_path.as_path());
+    println!("{:?}", ks);
+
+    let client = Client::new(ks);
+    println!("{:?}", client);
+
+    match cli.command {
+        Commands::User(user) => {
+
+            match user.command {
+                UserCommands::Create{}  => { 
+                    println!("create");
+                }
+                UserCommands::Me{} => {
+                    let me = client.me();
+                    println!("me {:?}", me);
+                }
+                UserCommands::Search { uuid } => {
+                    println!("Search {:?}", uuid);
                 }
             }
-            Commands::Http(http) => {
-    
-            }
+        }
+        Commands::Http(http) => {
+
         }
     }
+
 
 }
