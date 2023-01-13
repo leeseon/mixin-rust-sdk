@@ -1,6 +1,8 @@
-use std::{path::{PathBuf, Path}, ops::Deref, ffi::OsStr};
+use std::{path::{PathBuf, Path}, ffi::OsStr};
 use mixin_sdk::keystore::KeyStore;
 use mixin_sdk::Client;
+// use mixin_sdk::http::Error;
+// use carte::mixin::Error;
 
 use clap::{Args, Parser, Subcommand};
 
@@ -43,13 +45,6 @@ struct HttpCommand {
 
 }
 
-// fn abspath(p: &str) -> Option<String> {
-//     shellexpand::full(p)
-//         .ok()
-//         .and_then(|x| Path::new(OsStr::new(x.as_ref())).canonicalize().ok())
-//         .and_then(|p| p.into_os_string().into_string().ok())
-// }
-
 fn abspath_buf(p: &str) -> Option<PathBuf> {
     shellexpand::full(p)
         .ok()
@@ -60,24 +55,18 @@ fn main() {
     let cli = Cli::parse();
 
     let mut expanded_path: PathBuf = PathBuf::new();
-    if cli.file.is_none() {
-        println!("None");
-    }
-
     if let Some(ref config_path) = cli.file {
         let p = config_path.as_path().display().to_string();
         println!("{:?}", p);
         expanded_path = abspath_buf(&p).unwrap();
     }
 
-    println!("{:?}", expanded_path.as_path().display());
-
-
+    // println!("{:?}", expanded_path.as_path().display());
     let ks = KeyStore::from_file(expanded_path.as_path());
-    println!("{:?}", ks);
+    // println!("{:?}", ks);
 
     let client = Client::new(ks);
-    println!("{:?}", client);
+    // println!("{:?}", client);
 
     match cli.command {
         Commands::User(user) => {
@@ -88,7 +77,8 @@ fn main() {
                 }
                 UserCommands::Me{} => {
                     let me = client.me();
-                    println!("me {:?}", me);
+                    // println!("me {:?}", me);
+                    println!("{}", serde_json::to_string_pretty(&me).unwrap());
                 }
                 UserCommands::Search { uuid } => {
                     println!("Search {:?}", uuid);

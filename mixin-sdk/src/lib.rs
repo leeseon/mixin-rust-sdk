@@ -4,8 +4,12 @@ pub mod authorization;
 
 use reqwest::Method;
 use serde::{Deserialize, Serialize};
+// use serde_json::Serializer;
 use std::collections::HashMap;
-use std::error;
+use std::fmt::Display;
+use std::{error, fmt};
+use serde::{de, ser};
+use std::io::Error;
 
 #[derive(Debug)]
 pub struct Client {
@@ -54,6 +58,57 @@ pub struct Me {
     _unknow_fields_: Option<HashMap<String, toml::Value>>,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct MixinHttpError {
+    pub status: u32,
+    pub code: u32,
+
+    #[serde(default)]
+    pub description: String,
+    #[serde(default)]
+    pub extra: String,
+}
+
+impl fmt::Display for MixinHttpError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "status: {}, code: {}, description: {}, extra: {}",
+            self.status, self.code, self.description, self.extra
+        )
+    }
+}
+
+impl error::Error for MixinHttpError {}
+
+// impl Serialize for MixinHttpError {
+//     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+//     where
+//         S: Serializer,
+//     {
+//         // serialization logic here
+//         // if an error occurs, return it using MyError
+//         Err(S::Error::custom(MixinHttpError))
+//     }
+// }
+
+// pub fn hydrate(contents: &String) -> Result<Game, MyCustomError> {
+//     let game: Game = serde_json::from_str(contents).map_err(|err: serde_json::Error| {
+//       MyCustomError
+//     })?;
+
+// impl ser::Error for MixinHttpError {
+//     fn custom<T: Display>(msg: T) -> Self {
+//         Error::Message(msg.to_string())
+//     }
+// }
+
+// impl de::Error for MixinHttpError {
+//     fn custom<T: Display>(msg: T) -> Self {
+//         Error::Message(msg.to_string())
+//     }
+// }
+
 impl Client {
     pub fn new(ks: keystore::KeyStore) -> Client {
         Client {keystore: ks}
@@ -66,7 +121,7 @@ impl Client {
         #[derive(Debug, Serialize, Deserialize)]
         struct Body {
             data: Option<Me>,
-            error: Option<http::Error>,
+            error: Option<MixinHttpError>,
         }
     
         let body: Body = res.json().unwrap();
