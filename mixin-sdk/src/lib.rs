@@ -4,12 +4,8 @@ pub mod authorization;
 
 use reqwest::Method;
 use serde::{Deserialize, Serialize};
-// use serde_json::Serializer;
 use std::collections::HashMap;
-use std::fmt::Display;
 use std::{error, fmt};
-use serde::{de, ser};
-use std::io::Error;
 
 #[derive(Debug)]
 pub struct Client {
@@ -81,33 +77,6 @@ impl fmt::Display for MixinHttpError {
 
 impl error::Error for MixinHttpError {}
 
-// impl Serialize for MixinHttpError {
-//     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-//     where
-//         S: Serializer,
-//     {
-//         // serialization logic here
-//         // if an error occurs, return it using MyError
-//         Err(S::Error::custom(MixinHttpError))
-//     }
-// }
-
-// pub fn hydrate(contents: &String) -> Result<Game, MyCustomError> {
-//     let game: Game = serde_json::from_str(contents).map_err(|err: serde_json::Error| {
-//       MyCustomError
-//     })?;
-
-// impl ser::Error for MixinHttpError {
-//     fn custom<T: Display>(msg: T) -> Self {
-//         Error::Message(msg.to_string())
-//     }
-// }
-
-// impl de::Error for MixinHttpError {
-//     fn custom<T: Display>(msg: T) -> Self {
-//         Error::Message(msg.to_string())
-//     }
-// }
 
 impl Client {
     pub fn new(ks: keystore::KeyStore) -> Client {

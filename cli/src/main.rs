@@ -1,8 +1,6 @@
-use std::{path::{PathBuf, Path}, ffi::OsStr};
-use mixin_sdk::keystore::KeyStore;
+use std::{path::{PathBuf, Path}, ffi::OsStr, f32::consts::E};
+use mixin_sdk::{keystore::KeyStore, MixinHttpError};
 use mixin_sdk::Client;
-// use mixin_sdk::http::Error;
-// use carte::mixin::Error;
 
 use clap::{Args, Parser, Subcommand};
 
@@ -61,12 +59,9 @@ fn main() {
         expanded_path = abspath_buf(&p).unwrap();
     }
 
-    // println!("{:?}", expanded_path.as_path().display());
     let ks = KeyStore::from_file(expanded_path.as_path());
-    // println!("{:?}", ks);
 
     let client = Client::new(ks);
-    // println!("{:?}", client);
 
     match cli.command {
         Commands::User(user) => {
@@ -77,8 +72,16 @@ fn main() {
                 }
                 UserCommands::Me{} => {
                     let me = client.me();
-                    // println!("me {:?}", me);
-                    println!("{}", serde_json::to_string_pretty(&me).unwrap());
+                    match me {
+                        Ok(req) => {
+                            println!("{}", serde_json::to_string_pretty(&req).unwrap());
+                        }
+                        Err(e) => {
+                            if let Some(e) = e.downcast_ref::<MixinHttpError>() {
+                                println!("{}", serde_json::to_string_pretty(&e).unwrap());
+                            }
+                        },
+                    }
                 }
                 UserCommands::Search { uuid } => {
                     println!("Search {:?}", uuid);
