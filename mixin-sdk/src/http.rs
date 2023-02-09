@@ -5,29 +5,6 @@ use uuid::Uuid;
 
 use crate::{authorization, keystore};
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Error {
-    pub status: u32,
-    pub code: u32,
-
-    #[serde(default)]
-    pub description: String,
-    #[serde(default)]
-    pub extra: String,
-}
-
-impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "status: {}, code: {}, description: {}, extra: {}",
-            self.status, self.code, self.description, self.extra
-        )
-    }
-}
-
-impl error::Error for Error {}
-
 pub fn request<T: Serialize + ?Sized>(
     ks: keystore::KeyStore,
     method: Method,

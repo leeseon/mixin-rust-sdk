@@ -1,8 +1,6 @@
-use std::{path::{PathBuf, Path}, ffi::OsStr};
-use mixin_sdk::keystore::KeyStore;
+use std::{path::{PathBuf, Path}, ffi::OsStr, fmt::DebugMap};
+use mixin_sdk::{keystore::KeyStore, MixinHttpError};
 use mixin_sdk::Client;
-// use mixin_sdk::http::Error;
-// use carte::mixin::Error;
 
 use clap::{Args, Parser, Subcommand};
 
@@ -28,6 +26,7 @@ enum Commands {
 }
 
 #[derive(Debug, Args)]
+/// manager users
 struct UserCommand {
     #[command(subcommand)]
     command: UserCommands,
@@ -35,14 +34,23 @@ struct UserCommand {
 
 #[derive(Debug, Subcommand)]
 enum UserCommands {
+    /// create new user
     Create{},
     Me{},
+    /// search user by uuid or mixin id
     Search{ uuid: String},
 }
 
 #[derive(Parser, Debug)]
+/// mixin api http client
 struct HttpCommand {
+    #[arg(short='v', long)]
+    /// dump http request
+    dump: bool,
 
+    #[arg(long)]
+    /// raw json body
+    raw: Option<String>,
 }
 
 fn abspath_buf(p: &str) -> Option<PathBuf> {
@@ -61,12 +69,9 @@ fn main() {
         expanded_path = abspath_buf(&p).unwrap();
     }
 
-    // println!("{:?}", expanded_path.as_path().display());
     let ks = KeyStore::from_file(expanded_path.as_path());
-    // println!("{:?}", ks);
 
     let client = Client::new(ks);
-    // println!("{:?}", client);
 
     match cli.command {
         Commands::User(user) => {
@@ -77,8 +82,14 @@ fn main() {
                 }
                 UserCommands::Me{} => {
                     let me = client.me();
-                    // println!("me {:?}", me);
-                    println!("{}", serde_json::to_string_pretty(&me).unwrap());
+                    match me {
+                        Ok(j) => println!("{}", serde_json::to_string_pretty(&j).unwrap()),
+                        Err(e) =>  {
+                            if let Some(mixin_error) = e.downcast_ref::<MixinHttpError>() {
+                                println!("{:?}", serde_json::to_string_pretty(&mixin_error));
+                            }
+                        }
+                    }
                 }
                 UserCommands::Search { uuid } => {
                     println!("Search {:?}", uuid);
@@ -86,6 +97,15 @@ fn main() {
             }
         }
         Commands::Http(http) => {
+
+            if let Some(ref raw) = http.raw {
+                println!("raw {:?}", raw);
+            }
+
+            match http.dump {
+                true => println!("dump"),
+                false => println!("no dump"),
+            }
 
         }
     }
