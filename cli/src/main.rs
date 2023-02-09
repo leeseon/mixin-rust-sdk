@@ -1,6 +1,8 @@
 use std::{path::{PathBuf, Path}, ffi::OsStr, fmt::DebugMap};
 use mixin_sdk::{keystore::KeyStore, MixinHttpError};
 use mixin_sdk::Client;
+// use mixin_sdk::http::Error;
+// use carte::mixin::Error;
 
 use clap::{Args, Parser, Subcommand};
 
@@ -82,14 +84,8 @@ fn main() {
                 }
                 UserCommands::Me{} => {
                     let me = client.me();
-                    match me {
-                        Ok(j) => println!("{}", serde_json::to_string_pretty(&j).unwrap()),
-                        Err(e) =>  {
-                            if let Some(mixin_error) = e.downcast_ref::<MixinHttpError>() {
-                                println!("{:?}", serde_json::to_string_pretty(&mixin_error));
-                            }
-                        }
-                    }
+                    // println!("me {:?}", me);
+                    println!("{}", serde_json::to_string_pretty(&me).unwrap());
                 }
                 UserCommands::Search { uuid } => {
                     println!("Search {:?}", uuid);
