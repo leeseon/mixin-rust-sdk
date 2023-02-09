@@ -1,6 +1,6 @@
 use reqwest::{blocking::Response, header, Method};
-use serde::{Deserialize, Serialize};
-use std::{error, fmt, time::Duration};
+use serde::Serialize;
+use std::{error, time::Duration};
 use uuid::Uuid;
 
 use crate::{authorization, keystore};

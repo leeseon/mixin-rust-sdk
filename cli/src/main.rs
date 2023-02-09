@@ -1,8 +1,6 @@
-use std::{path::{PathBuf, Path}, ffi::OsStr, fmt::DebugMap};
+use std::{path::{PathBuf, Path}, ffi::OsStr};
 use mixin_sdk::{keystore::KeyStore, MixinHttpError};
 use mixin_sdk::Client;
-// use mixin_sdk::http::Error;
-// use carte::mixin::Error;
 
 use clap::{Args, Parser, Subcommand};
 
@@ -67,7 +65,6 @@ fn main() {
     let mut expanded_path: PathBuf = PathBuf::new();
     if let Some(ref config_path) = cli.file {
         let p = config_path.as_path().display().to_string();
-        println!("{:?}", p);
         expanded_path = abspath_buf(&p).unwrap();
     }
 
@@ -84,8 +81,14 @@ fn main() {
                 }
                 UserCommands::Me{} => {
                     let me = client.me();
-                    // println!("me {:?}", me);
-                    println!("{}", serde_json::to_string_pretty(&me).unwrap());
+                    match me {
+                        Ok(j) => println!("{}", serde_json::to_string_pretty(&j).unwrap()),
+                        Err(e) =>  {
+                            if let Some(mixin_error) = e.downcast_ref::<MixinHttpError>() {
+                                println!("{:?}", serde_json::to_string_pretty(&mixin_error));
+                            }
+                        }
+                    }
                 }
                 UserCommands::Search { uuid } => {
                     println!("Search {:?}", uuid);
