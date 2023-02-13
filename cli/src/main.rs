@@ -1,7 +1,7 @@
-use std::{path::{PathBuf, Path}, ffi::OsStr};
+use std::{path::{PathBuf, Path}, ffi::OsStr, mem};
 use mixin_sdk::{keystore::KeyStore, MixinHttpError};
 use mixin_sdk::Client;
-
+use reqwest::{Method, Url};
 use clap::{Args, Parser, Subcommand};
 
 #[derive(Parser, Debug)]
@@ -51,6 +51,24 @@ struct HttpCommand {
     #[arg(long)]
     /// raw json body
     raw: Option<String>,
+
+    #[clap(value_name = "[METHOD] URL")]
+    raw_method_or_url: String,
+
+    #[clap(value_name = "REQUEST_ITEM", verbatim_doc_comment)]
+    raw_rest_args: Vec<String>,
+
+    /// The HTTP method, if supplied.
+    #[clap(skip)]
+    pub method: Option<Method>,    
+
+    /// The request URL.
+    #[clap(skip = ("http://placeholder".parse::<Url>().unwrap()))]
+    pub url: Url,
+    
+    // /// Optional key-value pairs to be included in the request.
+    // #[clap(skip)]
+    // pub request_items: RequestItems,    
 }
 
 fn abspath_buf(p: &str) -> Option<PathBuf> {
@@ -95,7 +113,7 @@ fn main() {
                 }
             }
         }
-        Commands::Http(http) => {
+        Commands::Http(mut http) => {
 
             if let Some(ref raw) = http.raw {
                 println!("raw {:?}", raw);
@@ -106,8 +124,36 @@ fn main() {
                 false => println!("no dump"),
             }
 
+            println!("raw_rest_args {:?}", http.raw_rest_args);
+
+            let mut rest_args = mem::take(&mut http.raw_rest_args).into_iter();
+            let raw_url = match parse_method(&http.raw_method_or_url) {
+                Some(method) => {
+                    http.method = Some(method);
+                    rest_args
+                        .next()
+                        // .ok_or_else(|| Error(ErrorKind::MissingRequiredArgument, "Missing <URL>"))? // .ok_or_else())?
+                }
+                None => Some({
+                    http.method = None;
+                    mem::take(&mut http.raw_method_or_url)
+                })
+            };
+            println!("{:?}", http.method.unwrap());
+            println!("{:?}", raw_url.unwrap());
         }
     }
 
 
+}
+
+fn parse_method(method: &str) -> Option<Method> {
+    // This unfortunately matches "localhost"
+    if !method.is_empty() && method.chars().all(|c| c.is_ascii_alphabetic()) {
+        // Method parsing seems to fail if the length is 0 or if there's a null byte
+        // Our checks rule those both out, so .unwrap() is safe
+        Some(method.to_ascii_uppercase().parse().unwrap())
+    } else {
+        None
+    }
 }
