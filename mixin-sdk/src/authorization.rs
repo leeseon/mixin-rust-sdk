@@ -50,26 +50,9 @@ pub fn sign_token(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
 
     #[test]
-    fn test_sign_token(){
-        // test sign_token function
-        // let method = Method::GET;
-        // let uri = "https://mixin-api.zeromesh.net/assets";
-        // let body = "";
-        // let ks = keystore::KeyStore::new(
-        //     "cfc8b0c0-7d59-4a66-8c8f-2a1f6c2a6f4c",
-        //     "b1a6b4e6-4a6b-4a00-9e4b-0e8e6b8f6a06",
-        //     "e2b7d3e9-5f7e-4b2d-8c2f-6a2f6e2a6f4c",
-        //     "cfc8b0c0-7d59-4a66-8c8f-2a1f6c2a6f4c",
-        //     "e2b7d3e9-5f7e-4b2d-8c2f-6a2f6e2a6f4c",
-        //     "b1a6b4e6-4a6b-4a00-9e4b-0e8e6b8f6a06",
-        //     "b1a6b4e6-4a6b-4a00-9e4b-0e8e6b8f6a06",
-        // );
-        // let token = sign_token(method, uri, body, ks);
-        // sign_token(method, uri, body, ks)
+    fn sign_token(){
         assert_eq!(2+2, 4);
-
     }
 }

@@ -157,3 +157,32 @@ fn parse_method(method: &str) -> Option<Method> {
         None
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::ffi::OsString;
+
+    use clap::{error::Error};
+
+    use super::*;
+
+    fn parse<I>(args: I) -> Result<Cli, Error>
+    where
+        I: IntoIterator,
+        I::Item: Into<OsString> + Clone,
+    {
+        Cli::try_parse_from(
+            Some("xh".into())
+                .into_iter()
+                .chain(args.into_iter().map(Into::into)),
+        )
+    }    
+
+    #[test]
+    fn implicit_methods() {
+        let cli = parse(["http", "/logs"]).unwrap();
+        if let Commands::Http(ref http) = cli.command {
+            assert_eq!(http.method, None);
+        }
+    }
+}
