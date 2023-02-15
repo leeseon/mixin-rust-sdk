@@ -1,7 +1,7 @@
 use std::{path::{PathBuf, Path}, ffi::OsStr, mem};
 use mixin_sdk::{keystore::KeyStore, MixinHttpError};
 use mixin_sdk::Client;
-use reqwest::{Method, Url};
+use reqwest::{Method};
 use clap::{Args, Parser, Subcommand};
 
 #[derive(Parser, Debug)]
@@ -11,9 +11,11 @@ use clap::{Args, Parser, Subcommand};
 #[command(about = "Mixin Network API command line tool", long_about = None)]
 struct Cli {
     /// Sets a custom keystore file
-    #[arg(short, long, value_name = "FILE")]
+    #[arg(short, long, value_name = "FILE", global = true)]
     #[arg(default_value = "~/.mixin-cli/keystore.json")]
     file: Option<PathBuf>,
+
+    name: Option<String>,
 
     #[command(subcommand)]
     command: Commands,
@@ -62,9 +64,9 @@ struct HttpCommand {
     #[clap(skip)]
     pub method: Option<Method>,    
 
-    /// The request URL.
-    #[clap(skip = ("http://placeholder".parse::<Url>().unwrap()))]
-    pub url: Url,
+    // /// The request URL.
+    // #[clap(skip = ("http://placeholder".parse::<Url>().unwrap()))]
+    // pub url: Url,
     
     // /// Optional key-value pairs to be included in the request.
     // #[clap(skip)]
@@ -79,6 +81,11 @@ fn abspath_buf(p: &str) -> Option<PathBuf> {
 
 fn main() {
     let cli = Cli::parse();
+
+    if let Some(ref name) = cli.name {
+        println!("{:?}", name);
+    }
+
 
     let mut expanded_path: PathBuf = PathBuf::new();
     if let Some(ref config_path) = cli.file {
@@ -160,8 +167,7 @@ fn parse_method(method: &str) -> Option<Method> {
 
 #[cfg(test)]
 mod tests {
-    use std::ffi::OsString;
-
+    use std::{ffi::OsString};
     use clap::{error::Error};
 
     use super::*;
@@ -172,7 +178,7 @@ mod tests {
         I::Item: Into<OsString> + Clone,
     {
         Cli::try_parse_from(
-            Some("xh".into())
+            Some("mixin-cli".into())
                 .into_iter()
                 .chain(args.into_iter().map(Into::into)),
         )
@@ -183,6 +189,29 @@ mod tests {
         let cli = parse(["http", "/logs"]).unwrap();
         if let Commands::Http(ref http) = cli.command {
             assert_eq!(http.method, None);
+        }
+    }
+
+    #[test]
+    fn position_keystore() {
+        let cli = parse(["keystore", "user", "me"]);
+
+        match cli {
+            Ok(c) => {
+                assert_eq!(c.name.unwrap(), "keystore");
+                match c.command {
+                    Commands::User(_) => {
+                        println!("{:?}", c.command);
+                    },
+                    Commands::Http(_) => {
+                        assert!(true);
+                    },
+                }
+            }
+            Err(e) => {
+                println!("{:?}", e);
+                assert!(true);
+            }
         }
     }
 }
