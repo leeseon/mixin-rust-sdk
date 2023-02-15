@@ -14,4 +14,4 @@ cli/*.json
 .idea/**
 *.json
 
-cli/.idea/**
+**/.idea/**
