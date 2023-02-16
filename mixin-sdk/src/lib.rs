@@ -99,5 +99,23 @@ impl Client {
             None => Ok(body.data.unwrap()),
         }        
     }
+
+    pub fn req(self, method: Method, url: &str) -> Result<String, Box<dyn error::Error>> {
+        let map: HashMap<String, String> = HashMap::new();
+        let res = http::request(self.keystore, method, url, &map)?;
+    
+        #[derive(Debug, Serialize, Deserialize)]
+        struct Body {
+            data: Option<String>,
+            error: Option<MixinHttpError>,
+        }
+    
+        let body: Body = res.json().unwrap();
+    
+        match body.error {
+            Some(e) => Err(Box::new(e)),
+            None => Ok(body.data.unwrap()),
+        }        
+    }
 }
 

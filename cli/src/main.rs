@@ -15,6 +15,7 @@ struct Cli {
     #[arg(default_value = "~/.mixin-cli/keystore.json")]
     file: Option<PathBuf>,
 
+    #[arg(name = "keystore")]
     name: Option<String>,
 
     #[command(subcommand)]
